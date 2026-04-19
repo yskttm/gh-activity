@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: .go-version
           cache: true
       - run: go test ./...
 
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version-file: .go-version
           cache: true
       - name: Install golangci-lint
         run: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
