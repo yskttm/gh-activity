@@ -3,7 +3,7 @@ package cmd
 import (
 	"encoding/csv"
 	"fmt"
-	"os"
+	"io"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -111,24 +111,24 @@ func validateFields(fields []string) error {
 	return nil
 }
 
-func printResults(items []github.SearchItem, fields []string, format string) error {
+func printResults(out io.Writer, items []github.SearchItem, fields []string, format string) error {
 	if len(items) == 0 {
-		fmt.Println("No results found.")
+		fmt.Fprintln(out, "No results found.")
 		return nil
 	}
 
 	switch format {
 	case "csv":
-		return printCSV(items, fields)
+		return printCSV(out, items, fields)
 	default:
-		return printTable(items, fields)
+		return printTable(out, items, fields)
 	}
 }
 
-func printTable(items []github.SearchItem, fields []string) error {
-	fmt.Printf("Total: %d item(s)\n\n", len(items))
+func printTable(out io.Writer, items []github.SearchItem, fields []string) error {
+	fmt.Fprintf(out, "Total: %d item(s)\n\n", len(items))
 
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	w := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 
 	headers := make([]string, len(fields))
 	for i, f := range fields {
@@ -147,8 +147,8 @@ func printTable(items []github.SearchItem, fields []string) error {
 	return w.Flush()
 }
 
-func printCSV(items []github.SearchItem, fields []string) error {
-	w := csv.NewWriter(os.Stdout)
+func printCSV(out io.Writer, items []github.SearchItem, fields []string) error {
+	w := csv.NewWriter(out)
 
 	headers := make([]string, len(fields))
 	for i, f := range fields {

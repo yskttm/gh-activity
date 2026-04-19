@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bytes"
-	"os"
 	"strings"
 	"testing"
 
@@ -52,18 +51,6 @@ func TestValidateFields(t *testing.T) {
 	}
 }
 
-func captureStdout(f func()) string {
-	r, w, _ := os.Pipe()
-	orig := os.Stdout
-	os.Stdout = w
-	f()
-	w.Close()
-	os.Stdout = orig
-	var buf bytes.Buffer
-	buf.ReadFrom(r)
-	return buf.String()
-}
-
 func TestPrintCSV(t *testing.T) {
 	items := []github.SearchItem{
 		{
@@ -75,11 +62,12 @@ func TestPrintCSV(t *testing.T) {
 	}
 	fields := []string{"no", "repo", "number", "title"}
 
-	out := captureStdout(func() {
-		printCSV(items, fields)
-	})
+	var out bytes.Buffer
+	if err := printCSV(&out, items, fields); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 
-	lines := strings.Split(strings.TrimSpace(out), "\n")
+	lines := strings.Split(strings.TrimSpace(out.String()), "\n")
 	if len(lines) != 2 {
 		t.Fatalf("expected 2 lines (header + 1 row), got %d", len(lines))
 	}
@@ -95,11 +83,12 @@ func TestPrintCSV(t *testing.T) {
 }
 
 func TestPrintResults_NoResults(t *testing.T) {
-	out := captureStdout(func() {
-		printResults([]github.SearchItem{}, []string{"no", "title"}, "table")
-	})
-	if !strings.Contains(out, "No results found.") {
-		t.Errorf("expected 'No results found.', got: %q", out)
+	var out bytes.Buffer
+	if err := printResults(&out, []github.SearchItem{}, []string{"no", "title"}, "table"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !strings.Contains(out.String(), "No results found.") {
+		t.Errorf("expected 'No results found.', got: %q", out.String())
 	}
 }
 
