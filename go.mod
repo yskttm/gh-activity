@@ -1,6 +1,6 @@
 module github.com/yskttm/gh-activity
 
-go 1.25.0
+go 1.26.2
 
 require (
 	github.com/cli/go-gh/v2 v2.13.0
