@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -10,22 +9,26 @@ import (
 	"github.com/yskttm/gh-activity/internal/github"
 )
 
-var issueCmd = &cobra.Command{
-	Use:   "issue <username>",
-	Short: "List closed issues by assignee or author",
-	Args:  cobra.ExactArgs(1),
-	RunE:  runIssue,
-}
+func newIssueCmd(newClient func() (*github.Client, error)) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "issue <username>",
+		Short: "List closed issues by assignee or author",
+		Args:  cobra.ExactArgs(1),
+	}
 
-func init() {
 	today := time.Now().Format("2006-01-02")
-	issueCmd.Flags().String("from", today, "start date (YYYY-MM-DD)")
-	issueCmd.Flags().String("to", today, "end date (YYYY-MM-DD)")
-	issueCmd.Flags().StringSlice("repos", nil, "target repositories, comma-separated (e.g. org/repo1,org/repo2)")
-	issueCmd.Flags().StringSlice("fields", AllFieldNames, "fields to display, comma-separated")
+	cmd.Flags().String("from", today, "start date (YYYY-MM-DD)")
+	cmd.Flags().String("to", today, "end date (YYYY-MM-DD)")
+	cmd.Flags().StringSlice("repos", nil, "target repositories, comma-separated (e.g. org/repo1,org/repo2)")
+	cmd.Flags().StringSlice("fields", AllFieldNames, "fields to display, comma-separated")
+
+	cmd.RunE = func(cmd *cobra.Command, args []string) error {
+		return runIssue(cmd, args, newClient)
+	}
+	return cmd
 }
 
-func runIssue(cmd *cobra.Command, args []string) error {
+func runIssue(cmd *cobra.Command, args []string, newClient func() (*github.Client, error)) error {
 	username := args[0]
 	from, _ := cmd.Flags().GetString("from")
 	to, _ := cmd.Flags().GetString("to")
@@ -36,26 +39,26 @@ func runIssue(cmd *cobra.Command, args []string) error {
 	}
 	format, _ := cmd.Flags().GetString("format")
 
-	client, err := github.NewClient()
+	client, err := newClient()
 	if err != nil {
 		return err
 	}
 
 	repoQuery := buildRepoQuery(repos)
 
-	fmt.Fprintf(os.Stderr, "Fetching issues for %s (%s to %s)...\n", username, from, to)
+	fmt.Fprintf(cmd.ErrOrStderr(), "Fetching issues for %s (%s to %s)...\n", username, from, to)
 	if len(repos) > 0 {
-		fmt.Fprintf(os.Stderr, "Repos: %s\n", strings.Join(repos, " "))
+		fmt.Fprintf(cmd.ErrOrStderr(), "Repos: %s\n", strings.Join(repos, " "))
 	}
-	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(cmd.ErrOrStderr())
 
-	fmt.Fprintln(os.Stderr, "Fetching issues by assignee...")
+	fmt.Fprintln(cmd.ErrOrStderr(), "Fetching issues by assignee...")
 	assigneeItems, err := client.Search("assignee:"+username+" type:issue"+repoQuery, "closed", from, to)
 	if err != nil {
 		return err
 	}
 
-	fmt.Fprintln(os.Stderr, "Fetching issues by author...")
+	fmt.Fprintln(cmd.ErrOrStderr(), "Fetching issues by author...")
 	authorItems, err := client.Search("author:"+username+" type:issue"+repoQuery, "closed", from, to)
 	if err != nil {
 		return err
@@ -64,5 +67,5 @@ func runIssue(cmd *cobra.Command, args []string) error {
 	allItems := github.UniqueByID(append(assigneeItems, authorItems...))
 	github.SortItems(allItems)
 
-	return printResults(allItems, fields, format)
+	return printResults(cmd.OutOrStdout(), allItems, fields, format)
 }

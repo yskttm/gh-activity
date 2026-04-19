@@ -70,7 +70,7 @@ func TestSearch_NoResults(t *testing.T) {
 			{TotalCount: 0, Items: nil},
 		},
 	}
-	client := newClientWithREST(mock)
+	client := NewClientWithREST(mock)
 	items, err := client.Search("author:octocat type:pr", "merged", "2024-01-01", "2024-01-31")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -87,7 +87,7 @@ func TestSearch_SinglePage(t *testing.T) {
 			{TotalCount: 3, Items: []SearchItem{{ID: 1}, {ID: 2}, {ID: 3}}}, // fetchPage(1)
 		},
 	}
-	client := newClientWithREST(mock)
+	client := NewClientWithREST(mock)
 	items, err := client.Search("author:octocat type:pr", "merged", "2024-01-01", "2024-01-31")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -111,7 +111,7 @@ func TestSearch_MultiPage(t *testing.T) {
 			{Items: page2},            // fetchPage(2) → 2件、ループ終了
 		},
 	}
-	client := newClientWithREST(mock)
+	client := NewClientWithREST(mock)
 	items, err := client.Search("author:octocat type:pr", "merged", "2024-01-01", "2024-01-31")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -133,7 +133,7 @@ func TestSearch_SplitPeriod(t *testing.T) {
 			{Items: []SearchItem{{ID: 3}, {ID: 4}}},              // fetchPage(後半, 1)
 		},
 	}
-	client := newClientWithREST(mock)
+	client := NewClientWithREST(mock)
 	items, err := client.Search("author:octocat type:pr", "merged", "2024-01-01", "2024-01-03")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -161,7 +161,7 @@ func TestSearch_SplitCannotSplitFurther(t *testing.T) {
 			{Items: []SearchItem{}},                   // fetchPage(11) → 0件、終了
 		},
 	}
-	client := newClientWithREST(mock)
+	client := NewClientWithREST(mock)
 	// 1日の範囲 (diff_days=0 or 1)
 	items, err := client.Search("author:octocat type:pr", "merged", "2024-01-01", "2024-01-01")
 	if err != nil {

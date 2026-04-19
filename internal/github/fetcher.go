@@ -38,12 +38,12 @@ type SearchItem struct {
 	} `json:"pull_request"`
 }
 
-type restClient interface {
+type RESTClient interface {
 	Get(path string, resp interface{}) error
 }
 
 type Client struct {
-	rest          restClient
+	rest          RESTClient
 	pageSleepTime time.Duration
 }
 
@@ -55,7 +55,7 @@ func NewClient() (*Client, error) {
 	return &Client{rest: client, pageSleepTime: time.Second}, nil
 }
 
-func newClientWithREST(rest restClient) *Client {
+func NewClientWithREST(rest RESTClient) *Client {
 	return &Client{rest: rest, pageSleepTime: 0}
 }
 

@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/yskttm/gh-activity/internal/github"
 )
 
 var rootCmd = &cobra.Command{
@@ -19,6 +20,6 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().String("format", "table", "output format: table or csv")
-	rootCmd.AddCommand(issueCmd)
-	rootCmd.AddCommand(prCmd)
+	rootCmd.AddCommand(newIssueCmd(github.NewClient))
+	rootCmd.AddCommand(newPRCmd(github.NewClient))
 }
