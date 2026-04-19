@@ -1,5 +1,9 @@
 # gh-activity
 
+[![CI](https://github.com/yskttm/gh-activity/actions/workflows/ci.yml/badge.svg)](https://github.com/yskttm/gh-activity/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/yskttm/gh-activity)](https://github.com/yskttm/gh-activity/releases/latest)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/yskttm/gh-activity)](go.mod)
+
 GitHub CLI extension to aggregate Issue/PR activity for a user.
 
 ## Requirements
