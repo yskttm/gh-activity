@@ -18,12 +18,8 @@ builds:
       - -s -w
 
 archives:
-  - formats: [tar.gz]
-    format_overrides:
-      - goos: windows
-        formats: [zip]
+  - formats: [binary]
     name_template: "{{ .ProjectName }}_{{ .Os }}-{{ .Arch }}"
-    wrap_in_directory: false
 
 checksum:
   name_template: checksums.txt
