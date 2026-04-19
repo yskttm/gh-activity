@@ -28,7 +28,10 @@ func (m *mockREST) Get(path string, resp interface{}) error {
 		TotalCount int             `json:"total_count"`
 		Items      []gh.SearchItem `json:"items"`
 	}
-	data, _ := json.Marshal(wire{TotalCount: r.TotalCount, Items: r.Items})
+	data, err := json.Marshal(wire(r))
+	if err != nil {
+		return err
+	}
 	return json.Unmarshal(data, resp)
 }
 

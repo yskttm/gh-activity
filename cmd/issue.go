@@ -30,14 +30,29 @@ func newIssueCmd(newClient func() (*github.Client, error)) *cobra.Command {
 
 func runIssue(cmd *cobra.Command, args []string, newClient func() (*github.Client, error)) error {
 	username := args[0]
-	from, _ := cmd.Flags().GetString("from")
-	to, _ := cmd.Flags().GetString("to")
-	repos, _ := cmd.Flags().GetStringSlice("repos")
-	fields, _ := cmd.Flags().GetStringSlice("fields")
+	from, err := cmd.Flags().GetString("from")
+	if err != nil {
+		return err
+	}
+	to, err := cmd.Flags().GetString("to")
+	if err != nil {
+		return err
+	}
+	repos, err := cmd.Flags().GetStringSlice("repos")
+	if err != nil {
+		return err
+	}
+	fields, err := cmd.Flags().GetStringSlice("fields")
+	if err != nil {
+		return err
+	}
 	if err := validateFields(fields); err != nil {
 		return err
 	}
-	format, _ := cmd.Flags().GetString("format")
+	format, err := cmd.Flags().GetString("format")
+	if err != nil {
+		return err
+	}
 
 	client, err := newClient()
 	if err != nil {
