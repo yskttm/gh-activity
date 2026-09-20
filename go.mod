@@ -3,7 +3,7 @@ module github.com/yskttm/gh-activity
 go 1.26.2
 
 require (
-	github.com/cli/go-gh/v2 v2.16.0
+	github.com/cli/go-gh/v2 v2.16.1
 	github.com/spf13/cobra v1.10.2
 )
 
